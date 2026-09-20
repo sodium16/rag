@@ -1,10 +1,5 @@
 import argparse
-import json
-import string
-
-with open("data/movies.json") as f:
-    movies = json.load(f)["movies"]
-
+from keyword_search import search_command
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Keyword Search CLI")
@@ -17,22 +12,10 @@ def main() -> None:
 
     match args.command:
         case "search":
-            print(f'Searching for: {args.query}')
-
-            query = args.query.translate(
-                str.maketrans("" , "" , string.punctuation)
-            )
-
-            count = 1
-            for movie in movies:
-                if count == 6:
-                    break
-                title = movie['title'].translate(
-                    str.maketrans("", "", string.punctuation)
-                )
-                if query.lower() in title.lower():
-                    print(f'{count}. {movie['title']}')
-                    count += 1
+            print('Searching for:', args.query)
+            movies = search_command(args.query)
+            for i, movie in enumerate(movies, 1):
+                print(f"{i}. {movie['title']}")
         case _:
             parser.print_help()
 
