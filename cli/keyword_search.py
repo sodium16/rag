@@ -1,5 +1,9 @@
 import string
 from search_utils import DEFAULT_SEARCH_LIMIT, STOPWORDS_PATH, load_movies
+from nltk.stem import PorterStemmer
+
+stemmer = PorterStemmer()
+
 
 def search_command(query : str, limit : int = DEFAULT_SEARCH_LIMIT) -> list[dict]:
     movies = load_movies()
@@ -30,7 +34,7 @@ def tokenize_text(text : str) -> list[str]:
     ans = []
     for text_token in text_tokens:
         if text_token not in stopwords:
-            ans.append(text_token)
+            ans.append(stemmer.stem(text_token))
     return ans
 
 def has_token(query_tokens : list[str], title_tokens : list[str]) -> bool:
