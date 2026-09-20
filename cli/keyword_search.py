@@ -7,10 +7,12 @@ def search_command(query : str, limit : int = DEFAULT_SEARCH_LIMIT) -> list[dict
     for movie in movies:
         preprocessed_query = preprocess_text(query)
         preprocessed_title = preprocess_text(movie["title"])
-        if preprocessed_query in preprocessed_title:
-            results.append(movie)
-            if len(results) >= limit:
-                break
+        query_vec = preprocessed_query.split()
+        for word in query_vec:
+            if word in preprocessed_title:
+                results.append(movie)
+                if len(results) >= limit:
+                    return results
     
     return results
 
