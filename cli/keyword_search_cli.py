@@ -1,5 +1,6 @@
 import argparse
 import json
+import string
 
 with open("data/movies.json") as f:
     movies = json.load(f)["movies"]
@@ -17,11 +18,19 @@ def main() -> None:
     match args.command:
         case "search":
             print(f'Searching for: {args.query}')
+
+            query = args.query.translate(
+                str.maketrans("" , "" , string.punctuation)
+            )
+
             count = 1
             for movie in movies:
                 if count == 6:
                     break
-                if args.query.lower() in movie['title'].lower():
+                title = movie['title'].translate(
+                    str.maketrans("", "", string.punctuation)
+                )
+                if query.lower() in title.lower():
                     print(f'{count}. {movie['title']}')
                     count += 1
         case _:
