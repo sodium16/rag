@@ -1,5 +1,5 @@
 import string
-from search_utils import DEFAULT_SEARCH_LIMIT, load_movies, load_stopwords
+from search_utils import DEFAULT_SEARCH_LIMIT, STOPWORDS_PATH, load_movies
 
 def search_command(query : str, limit : int = DEFAULT_SEARCH_LIMIT) -> list[dict]:
     movies = load_movies()
@@ -18,11 +18,13 @@ def preprocess_text(text : str) -> str:
     #remove punctuation (what to replace, what to replace with, what to remove)
     return text.translate(str.maketrans("", "", string.punctuation))
 
+def load_stopwords() -> list[str]:
+    with open(STOPWORDS_PATH, 'r') as f:
+        return [preprocess_text(word) for word in f.read().splitlines()]
+
+stopwords = load_stopwords()
+
 def tokenize_text(text : str) -> list[str]:
-    words = load_stopwords()
-    stopwords = []
-    for word in words:
-        stopwords.append(preprocess_text(word))
     preprocessed_text = preprocess_text(text)
     text_tokens = preprocessed_text.split()
     ans = []
