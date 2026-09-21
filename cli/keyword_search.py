@@ -4,6 +4,25 @@ from nltk.stem import PorterStemmer
 
 stemmer = PorterStemmer()
 
+class InvertedIndex:
+    def __init__(self):
+        self.index = {}
+        self.docmap = {}
+
+    def __add_document(self, doc_id, text) -> None:
+        token_list = tokenize_text(text)
+        for token in token_list:
+            if token not in self.index:
+                self.index[token] = set()
+            self.index[token].add(doc_id)
+
+    def get_documents(self, term) -> list[int]:
+        return sorted(self.index[term])
+
+    def build() -> None:
+        movies = load_movies()
+        for movie in movies:
+
 
 def search_command(query : str, limit : int = DEFAULT_SEARCH_LIMIT) -> list[dict]:
     movies = load_movies()
