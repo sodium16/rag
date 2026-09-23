@@ -1,7 +1,7 @@
 import string
 from search_utils import (DEFAULT_SEARCH_LIMIT, STOPWORDS_PATH, load_movies, CACHE_DIR)
 from nltk.stem import PorterStemmer
-from pickle import dump
+from pickle import dump, load
 import os
 from collections import defaultdict
 
@@ -34,25 +34,37 @@ class InvertedIndex:
             dump(self.index, f)
         with open(self.docmap_path, 'wb') as f:
             dump(self.docmap, f)
+            
+    def load(self) -> None:
+        with open(self.index_path, 'rb') as f:
+            self.index = load(f)
+        with open(self.docmap_path, 'rb') as f:
+            self.docmap = load(f)
 
 def build_command():
     index = InvertedIndex()
     index.build()
     index.save()
-    docs = index.get_documents('merida')
-    print(f"First document for token 'merida' = {docs[0]}")
-
+    
 
 def search_command(query : str, limit : int = DEFAULT_SEARCH_LIMIT) -> list[dict]:
-    movies = load_movies()
-    results = []
-    for movie in movies:
-        query_tokens = tokenize_text(query)
-        title_tokens = tokenize_text(movie["title"])
-        if has_token(query_tokens, title_tokens):
-            results.append(movie)
-            if len(results) >= limit:
-                break 
+    results, seen = [], set()
+    index = InvertedIndex()
+    try:
+        index.load()
+    except FileNotFoundError:
+        print("index files not found, please build index first")
+        return []
+    query_vec = tokenize_text(query)
+    for q in query_vec:
+        if(q in index.index):
+            ids = index.get_documents(q)
+            for id in ids:
+                if id not in seen:
+                    seen.add(id)
+                    results.append(index.docmap[id]) 
+                    if(len(results) >=5):
+                        return results
     return results
 
 def preprocess_text(text : str) -> str:
@@ -75,9 +87,9 @@ def tokenize_text(text : str) -> list[str]:
             ans.append(stemmer.stem(text_token))
     return ans
 
-def has_token(query_tokens : list[str], title_tokens : list[str]) -> bool:
-    for query_token in query_tokens:
-        for title_token in title_tokens:
-            if query_token in title_token:
-                return True
-    return False
+# def has_token(query_tokens : list[str], title_tokens : list[str]) -> bool:
+#     for query_token in query_tokens:
+#         for title_token in title_tokens:
+#             if query_token in title_token:
+#                 return True
+#     return False
