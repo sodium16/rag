@@ -1,21 +1,22 @@
 import string
-from search_utils import DEFAULT_SEARCH_LIMIT, STOPWORDS_PATH, load_movies
+from search_utils import (DEFAULT_SEARCH_LIMIT, STOPWORDS_PATH, load_movies, CACHE_DIR)
 from nltk.stem import PorterStemmer
 from pickle import dump
 import os
+from collections import defaultdict
 
 stemmer = PorterStemmer()
 
 class InvertedIndex:
     def __init__(self):
-        self.index = {}
+        self.index = defaultdict(set)
         self.docmap = {}
+        self.index_path = os.path.join(CACHE_DIR, "index.pkl")
+        self.docmap_path = os.path.join(CACHE_DIR, "docmap.pkl")
 
     def __add_document(self, doc_id, text) -> None:
         token_list = tokenize_text(text)
         for token in token_list:
-            if token not in self.index:
-                self.index[token] = set()
             self.index[token].add(doc_id)
 
     def get_documents(self, term) -> list[int]:
@@ -28,10 +29,10 @@ class InvertedIndex:
             self.__add_document(movie['id'], f"{movie['title']} {movie['description']}")
 
     def save(self) -> None:
-        os.makedirs("cache", exist_ok=True)
-        with open('cache/index.pkl', 'wb') as f:
+        os.makedirs(CACHE_DIR, exist_ok=True)
+        with open(self.index_path, 'wb') as f:
             dump(self.index, f)
-        with open('cache/docmap.pkl', 'wb') as f:
+        with open(self.docmap_path, 'wb') as f:
             dump(self.docmap, f)
 
 def build_command():

@@ -18,10 +18,12 @@ def main() -> None:
             for i, movie in enumerate(movies, 1):
                 print(f"{i}. {movie['title']}")
         case "build":
+            print("Building inverted index...")
             build_command()
+            print("Built inverted index successfully")
         case _:
             parser.print_help()
-
+    
 
 if __name__ == "__main__":
     main()
