@@ -62,11 +62,11 @@ def tokenize_term(term : str) -> str:
         raise ValueError("Contains multiple tokens")
     return texts[0]
 
-def tf_command(doc_id, term):
+def tf_command(doc_id, term) -> int:
     index = InvertedIndex()
     term = tokenize_term(term)
     index.load()
-    print(index.get_tf(doc_id, term))
+    return index.get_tf(doc_id, term)
      
 
 def build_command():

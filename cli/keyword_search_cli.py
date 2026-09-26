@@ -25,7 +25,8 @@ def main() -> None:
             build_command()
             print("Built inverted index successfully")
         case "tf":
-            tf_command(args.doc_id, args.term)
+            tf = tf_command(args.doc_id, args.term)
+            print(f"Term frequency of {args.term} in document {args.doc_id} is {tf}")
         case _:
             parser.print_help()
     
