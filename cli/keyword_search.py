@@ -3,20 +3,26 @@ from search_utils import (DEFAULT_SEARCH_LIMIT, STOPWORDS_PATH, load_movies, CAC
 from nltk.stem import PorterStemmer
 from pickle import dump, load
 import os
-from collections import defaultdict
+from collections import defaultdict, Counter
 
 stemmer = PorterStemmer()
 
 class InvertedIndex:
     def __init__(self):
+        #token to indexes
         self.index = defaultdict(set)
+        #indexes to movies
         self.docmap = {}
+        #term to its count
+        self.term_frequencies = defaultdict(Counter)
         self.index_path = os.path.join(CACHE_DIR, "index.pkl")
         self.docmap_path = os.path.join(CACHE_DIR, "docmap.pkl")
+        self.tf_path = os.path.join(CACHE_DIR, "term_frequencies.pkl")
 
     def __add_document(self, doc_id, text) -> None:
         token_list = tokenize_text(text)
         for token in token_list:
+            self.term_frequencies[doc_id][token]+=1
             self.index[token].add(doc_id)
 
     def get_documents(self, term) -> list[int]:
@@ -34,12 +40,34 @@ class InvertedIndex:
             dump(self.index, f)
         with open(self.docmap_path, 'wb') as f:
             dump(self.docmap, f)
+        with open(self.tf_path, 'wb') as f:
+            dump(self.term_frequencies, f)
             
     def load(self) -> None:
         with open(self.index_path, 'rb') as f:
             self.index = load(f)
         with open(self.docmap_path, 'rb') as f:
             self.docmap = load(f)
+        with open(self.tf_path, 'rb') as f:
+            self.term_frequencies = load(f)
+            
+    def get_tf(self, doc_id, term) -> int :
+        if term in self.term_frequencies[doc_id]:
+            return self.term_frequencies[doc_id][term]
+        return 0
+    
+def tokenize_term(term : str) -> str:
+    texts = tokenize_text(term)
+    if len(texts) != 1:
+        raise ValueError("Contains multiple tokens")
+    return texts[0]
+
+def tf_command(doc_id, term):
+    index = InvertedIndex()
+    term = tokenize_term(term)
+    index.load()
+    print(index.get_tf(doc_id, term))
+     
 
 def build_command():
     index = InvertedIndex()
