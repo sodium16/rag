@@ -1,5 +1,5 @@
 import argparse
-from keyword_search import search_command, build_command, tf_command
+from keyword_search import search_command, build_command, tf_command, idf_command
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Keyword Search CLI")
@@ -11,6 +11,8 @@ def main() -> None:
     tf_parser = subparsers.add_parser("tf", help="run term frequency tests")
     tf_parser.add_argument('doc_id', type=int, help="Enter the document id")
     tf_parser.add_argument('term', type=str, help='enter a term to search')
+    idf_parser = subparsers.add_parser("idf", help="search via idf")
+    idf_parser.add_argument("term", type=str, help = 'term to search for')
 
     args = parser.parse_args()
 
@@ -27,6 +29,9 @@ def main() -> None:
         case "tf":
             tf = tf_command(args.doc_id, args.term)
             print(f"Term frequency of {args.term} in document {args.doc_id} is {tf}")
+        case "idf":
+            idf = idf_command(args.term)
+            print(f"Inverse document frequency of '{args.term}': {idf:.2f}")
         case _:
             parser.print_help()
     

@@ -3,6 +3,7 @@ from search_utils import (DEFAULT_SEARCH_LIMIT, STOPWORDS_PATH, load_movies, CAC
 from nltk.stem import PorterStemmer
 from pickle import dump, load
 import os
+import math
 from collections import defaultdict, Counter
 
 stemmer = PorterStemmer()
@@ -67,7 +68,14 @@ def tf_command(doc_id, term) -> int:
     term = tokenize_term(term)
     index.load()
     return index.get_tf(doc_id, term)
-     
+
+def idf_command(term) -> float:
+    index = InvertedIndex()
+    index.load()
+    term = tokenize_term(term)
+    total_doc_count = len(index.docmap)
+    term_match_doc_count = len(index.get_documents(term))
+    return math.log((total_doc_count + 1) / (term_match_doc_count + 1))
 
 def build_command():
     index = InvertedIndex()
