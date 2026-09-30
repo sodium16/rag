@@ -77,6 +77,11 @@ def idf_command(term) -> float:
     term_match_doc_count = len(index.get_documents(term))
     return math.log((total_doc_count + 1) / (term_match_doc_count + 1))
 
+def tfidf_command(doc_id, term) -> float:
+    tf = tf_command(doc_id, term)
+    idf = idf_command(term)
+    return float(tf*idf)
+
 def build_command():
     index = InvertedIndex()
     index.build()
